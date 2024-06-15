@@ -1,11 +1,15 @@
 package com.apiescuela.demo.controllers;
 
 import com.apiescuela.demo.entities.Estudiante;
+import com.apiescuela.demo.exceptions.EmptyException;
 import com.apiescuela.demo.exceptions.NotFoundException;
 import com.apiescuela.demo.service.ServiceEstudianteI;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.bind.BindResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,8 +39,12 @@ public class EstudianteController {
     }
 
     @PostMapping("/estudiante")
-    public ResponseEntity<Estudiante> crearEstudiante(@RequestBody Estudiante estudiante){
-        Estudiante estudianteCreado = serviceEstudianteI.crearEstudiante(estudiante);
-        return ResponseEntity.status(HttpStatus.CREATED).body(estudianteCreado);
+    public ResponseEntity<Estudiante> crearEstudiante(@Valid @RequestBody Estudiante estudiante){
+        if (estudiante.getNombre() == null || estudiante.getNombre().isBlank()){
+                throw new EmptyException("El alumno está vacío", HttpStatus.BAD_REQUEST, "ERROR 20");
+        } else {
+            Estudiante estudianteCreado = serviceEstudianteI.crearEstudiante(estudiante);
+            return ResponseEntity.status(HttpStatus.CREATED).body(estudianteCreado);
+        }
     }
 }
